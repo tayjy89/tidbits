@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thwaites Score Calculator</title>
+    <title>Useful Tools</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,93 +13,48 @@
         h1 {
             color: #333;
         }
-        table {
-            margin: 0 auto;
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
         }
-        td {
-            padding: 5px;
-        }
-        input[type="number"] {
-            width: 100px;
-        }
-        button {
+        .button {
+            margin: 10px;
+            padding: 10px 20px;
             background-color: #0074d9;
             color: #fff;
             border: none;
-            padding: 10px 20px;
             cursor: pointer;
+            text-decoration: none;
+            display: block;
+            border-radius: 10px; 
+            width: 200px; 
         }
-        button:hover {
+        .button:hover {
             background-color: #0056b3;
         }
-        #thwaitesResult {
-            font-weight: bold;
-            margin-top: 20px;
+        .separator {
+            margin: 10px;
+            font-size: 14px;
+            color: #777;
         }
     </style>
 </head>
 <body>
-    <h1>Thwaites Score Calculator</h1>
+    <h1>Useful Tools</h1>
 
-    <table>
-        <tr>
-            <td><label for="age">Age (years):</label></td>
-            <td><input type="number" id="age"></td>
-        </tr>
-        <tr>
-            <td><label for="bloodWBC">Blood WBC (10³/mm³):</label></td>
-            <td><input type="number" id="bloodWBC"></td>
-        </tr>
-        <tr>
-            <td><label for="daysIllness">Days of Illness:</label></td>
-            <td><input type="number" id="daysIllness"></td>
-        </tr>
-        <tr>
-            <td><label for="csfWBC">CSF WBC (10³/mm³):</label></td>
-            <td><input type="number" id="csfWBC"></td>
-        </tr>
-        <tr>
-            <td><label for="csfNeutrophils">CSF % Neutrophils:</label></td>
-            <td><input type="number" id="csfNeutrophils"></td>
-        </tr>
-    </table>
+    <p class="separator">
+        <a href="https://www.youtube.com">YouTube</a> |
+        <a href="https://www.wordpress.com">WordPress</a> |
+        <a href="https://www.substack.com">Substack</a>
+    </p>
 
-    <!-- Calculate Button -->
-    <button onclick="calculateThwaitesScore()">Calculate Thwaites Score</button>
-
-    <!-- Results -->
-    <p id="thwaitesResult"></p>
-
-      <script>
-        function calculateThwaitesScore() {
-            const age = parseFloat(document.getElementById('age').value);
-            const bloodWBC = parseFloat(document.getElementById('bloodWBC').value);
-            const daysIllness = parseInt(document.getElementById('daysIllness').value);
-            const csfWBC = parseFloat(document.getElementById('csfWBC').value);
-            const csfNeutrophils = parseFloat(document.getElementById('csfNeutrophils').value);
-
-            // Calculate Thwaites score
-            let thwaitesScore = 0;
-            if (age >= 36) {
-                thwaitesScore += 2;
-            }
-            if (bloodWBC >= 15) {
-                thwaitesScore += 4;
-            }
-            if (daysIllness >= 6) {
-                thwaitesScore += 5;
-            }
-            if (csfWBC >= 0.9) {
-                thwaitesScore += 3;
-            }
-            if (csfNeutrophils >= 75) {
-                thwaitesScore += 4;
-            }
-
-            // Display results and interpretation
-            const interpretation = (thwaitesScore <= 4) ? 'High probability of tuberculous meningitis.' : 'Consider other causes for meningitis.';
-            document.getElementById('thwaitesResult').textContent = `Thwaites Score: ${thwaitesScore}. ${interpretation}`;
-        }
-    </script>
+    <div class="button-container">
+         <a href="https://tayjy89.github.io/tbmeds.html" class="button">TB Medication Dosages</a>
+         <a href="https://www.tstin3d.com/en/calc.html" class="button">TST/IGRA Interpreter</a>
+         <a href="https://tayjy89.github.io/thwaites" class="button">Thwaites' Score</a>
+         <a href="https://tayjy89.github.io/links.html" class="button">Useful Links</a>
+    </div>
 </body>
 </html>
