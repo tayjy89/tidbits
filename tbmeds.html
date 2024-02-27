@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TB Medication Dosage Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        label {
+            display: inline-block;
+            width: 45%;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        input[type="number"],
+        select {
+            width: 45%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #ffffff;
+            color: #007bff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button.selected {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        #calculate {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        #calculate:hover {
+            background-color: #003366;
+        }
+
+        #active,
+        #latent,
+        #male,
+        #female {
+            background-color: #ffffff;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #active.selected,
+        #latent.selected,
+        #male.selected,
+        #female.selected {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>TB Medication Dosage Calculator</h1>
+        <div>
+            <button id="male" onclick="setGender('male')">Male</button>
+            <button id="female" onclick="setGender('female')">Female</button>
+        </div>
+        <br>
+        <label for="age">Age:</label>
+        <input type="number" id="age" placeholder="Enter age" required>
+        <br>
+        <label for="weight">Weight (kg):</label>
+        <input type="number" id="weight" placeholder="Enter weight" required>
+        <br>
+        <label for="creatinine">Creatinine (micromol/L):</label>
+        <input type="number" id="creatinine" placeholder="Enter creatinine" required>
+        <br>
+        <div>
+            <button id="active" onclick="setTreatmentType('active')">Active TB Disease</button>
+            <button id="latent" onclick="setTreatmentType('latent')">Latent TB Infection</button>
+        </div>
+        <br>
+        <button id="calculate" onclick="calculateDosages()">Calculate</button>
+        <div id="result"></div>
+
+        <script>
+            let selectedTreatmentType = 'active';
+
+            function setGender(gender) {
+                document.getElementById('male').classList.toggle('selected', gender === 'male');
+                document.getElementById('female').classList.toggle('selected', gender === 'female');
+            }
+
+            function setTreatmentType(type) {
+                selectedTreatmentType = type;
+                document.getElementById('active').classList.toggle('selected', type === 'active');
+                document.getElementById('latent').classList.toggle('selected', type === 'latent');
+            }
+
+function calculateEthambutolDose(crcl, weight) {
+    // Ethambutol dosage based on renal function
+    let ethambutolDose;
+
+    if (crcl > 60) {
+        ethambutolDose = Math.min(1600, Math.ceil(weight * 20 / 100) * 100);
+        ethambutolDose = `${ethambutolDose} mg/day`;
+    } else if (crcl > 30) {
+        ethambutolDose = Math.min(1600, Math.ceil(weight * 15 / 100) * 100);
+        ethambutolDose = `${ethambutolDose} mg/day`;
+    } else {
+        // Calculate dose for 3 times/week
+        ethambutolDose = Math.min(1600, Math.ceil(weight * 20 / 100) * 100);
+        ethambutolDose = `${ethambutolDose} mg 3 times/week`;
+    }
+
+    return ethambutolDose;
+}
+
+            function calculateDosages() {
+                const age = parseFloat(document.getElementById('age').value);
+                const weight = parseFloat(document.getElementById('weight').value);
+                const creatinine = parseFloat(document.getElementById('creatinine').value);
+
+                // Convert creatinine from micromol/L to mg/dL
+                const creatinine_mgdl = creatinine / 88.4;
+
+                // Calculate CrCl using Cockcroft equation
+                const crcl = (140 - age) * weight / (72 * creatinine_mgdl);
+
+                // Perform dosage calculations based on treatment type
+                let result = `<strong>Dosages (CrCl: ${crcl.toFixed(2)} mL/min):</strong><br>`;
+                if (selectedTreatmentType === 'active') {
+                    result += '<table style="width:100%; border-collapse: collapse; border: 1px solid #000; vertical-align: top;">';
+                    result += '<tr><th style="text-align: left; border: 1px solid #000;">Phase</th><th style="text-align: left; border: 1px solid #000;">Medication</th><th style="text-align: left; border: 1px solid #000;">Dosage</th></tr>';
+
+                    // Intensive Phase
+                    result += '<tr><td rowspan="4" style="text-align: left; border: 1px solid #000;">Intensive Phase</td><td style="border: 1px solid #000; text-align: left;">Rifampicin:</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 45 ? 600 : 450) + ' mg/day</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Isoniazid:</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 35 ? 300 : 200) + ' mg/day</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Ethambutol:</td><td style="border: 1px solid #000; text-align: left;">' + calculateEthambutolDose(crcl, weight) + '</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Pyrazinamide:</td><td style="border: 1px solid #000; text-align: left;">' + Math.min(2000, Math.floor(weight * 25)) + ' mg/day</td></tr>';
+
+                    // Consolidation Phase
+                    result += '<tr><td rowspan="4" style="text-align: left; border: 1px solid #000;">Consolidation Phase</td><td style="border: 1px solid #000; text-align: left;">Rifampicin (daily):</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 45 ? 600 : 450) + ' mg/day</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Isoniazid (daily):</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 35 ? 300 : 200) + ' mg/day</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Rifampicin (3 times a week):</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 45 ? '600 mg 3 times/week' : '450 mg 3 times/week') + '</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Isoniazid (3 times a week):</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 35 ? '300 mg 3 times/week' : 200) + ' mg 3 times/week</td></tr>';
+
+                    result += '</table>';
+                } else if (selectedTreatmentType === 'latent') {
+                    result += '<table style="width:100%; border-collapse: collapse; border: 1px solid #000; vertical-align: top;">';
+                    result += '<tr><th style="text-align: left; border: 1px solid #000;">Medication</th><th style="text-align: left; border: 1px solid #000;">Dosage</th></tr>';
+
+                    // Latent TB Infection Phase
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Rifampicin:</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 45 ? 600 : 450) + ' mg/day</td></tr>';
+                    result += '<tr><td style="border: 1px solid #000; text-align: left;">Isoniazid:</td><td style="border: 1px solid #000; text-align: left;">' + (weight > 35 ? 300 : 200) + ' mg/day</td></tr>';
+
+                    result += '</table>';
+                }
+
+                // Display the result with increased font size and padding
+                document.getElementById('result').innerHTML = '<div style="font-size: 18px; padding: 10px;">' + result + '</div>';
+            }
+        </script>
+</body>
+
+</html>
