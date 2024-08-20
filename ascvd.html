@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SG-FRS-2023 Risk Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .container input[type="number"], .container select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .container button:hover {
+            background-color: #0056b3;
+        }
+
+        .result, .points-table {
+            margin-top: 20px;
+        }
+
+        .points-table {
+            font-size: 0.9em;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .points-table th, .points-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .points-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>SG-FRS-2023 Calculator</h2>
+
+    <label for="gender">Gender</label>
+    <select id="gender">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+
+    <label for="ethnicity">Ethnicity</label>
+    <select id="ethnicity">
+        <option value="chinese">Chinese</option>
+        <option value="malay">Malay</option>
+        <option value="indian">Indian</option>
+    </select>
+
+    <label for="age">Age</label>
+    <input type="number" id="age" min="20" max="79">
+
+    <label for="totalChol">Total Cholesterol (mmol/L)</label>
+    <input type="number" step="0.1" id="totalChol">
+
+    <label for="hdlChol">HDL Cholesterol (mmol/L)</label>
+    <input type="number" step="0.1" id="hdlChol">
+
+    <label for="smoking">Smoking Status</label>
+    <select id="smoking">
+        <option value="non-smoker">Non-smoker</option>
+        <option value="smoker">Smoker</option>
+    </select>
+
+    <label for="systolicBP">Systolic Blood Pressure (mmHg)</label>
+    <input type="number" id="systolicBP">
+
+    <label for="treatmentBP">Is Blood Pressure Treated?</label>
+    <select id="treatmentBP">
+        <option value="untreated">Untreated</option>
+        <option value="treated">Treated</option>
+    </select>
+
+    <button onclick="calculateRisk()">Calculate 10-Year Risk</button>
+
+    <div class="result"></div>
+    <table class="points-table" style="display:none;">
+        <thead>
+        <tr>
+            <th>Parameter</th>
+            <th>Points</th>
+        </tr>
+        </thead>
+        <tbody id="points-table-body">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function calculateRisk() {
+        const gender = document.getElementById('gender').value;
+        const ethnicity = document.getElementById('ethnicity').value;
+        const age = parseInt(document.getElementById('age').value);
+        const totalChol = parseFloat(document.getElementById('totalChol').value);
+        const hdlChol = parseFloat(document.getElementById('hdlChol').value);
+        const smoking = document.getElementById('smoking').value;
+        const systolicBP = parseInt(document.getElementById('systolicBP').value);
+        const treatmentBP = document.getElementById('treatmentBP').value;
+
+        let points = 0;
+        let pointsTable = "";
+
+        // Age Points
+        if (gender === "male") {
+            if (age >= 20 && age <= 34) points += -9;
+            else if (age >= 35 && age <= 39) points += -4;
+            else if (age >= 40 && age <= 44) points += 0;
+            else if (age >= 45 && age <= 49) points += 3;
+            else if (age >= 50 && age <= 54) points += 6;
+            else if (age >= 55 && age <= 59) points += 8;
+            else if (age >= 60 && age <= 64) points += 10;
+            else if (age >= 65 && age <= 69) points += 11;
+            else if (age >= 70 && age <= 79) points += 12;
+        } else if (gender === "female") {
+            if (age >= 20 && age <= 34) points += -7;
+            else if (age >= 35 && age <= 39) points += -3;
+            else if (age >= 40 && age <= 44) points += 0;
+            else if (age >= 45 && age <= 49) points += 3;
+            else if (age >= 50 && age <= 54) points += 6;
+            else if (age >= 55 && age <= 59) points += 8;
+            else if (age >= 60 && age <= 64) points += 10;
+            else if (age >= 65 && age <= 69) points += 12;
+            else if (age >= 70 && age <= 79) points += 14;
+        }
+        pointsTable += `<tr><td>Age</td><td>${points}</td></tr>`;
+
+        // Total Cholesterol Points
+        let totalCholPoints = 0;
+        if (gender === "male") {
+            if (totalChol < 4.1) totalCholPoints = 0;
+            else if (totalChol < 5.2) totalCholPoints = (age >= 20 && age <= 39) ? 4 : (age >= 40 && age <= 49) ? 3 : (age >= 50 && age <= 59) ? 2 : (age >= 60 && age <= 69) ? 1 : 0;
+            else if (totalChol < 6.2) totalCholPoints = (age >= 20 && age <= 39) ? 7 : (age >= 40 && age <= 49) ? 5 : (age >= 50 && age <= 59) ? 3 : (age >= 60 && age <= 69) ? 1 : 0;
+            else if (totalChol < 7.3) totalCholPoints = (age >= 20 && age <= 39) ? 9 : (age >= 40 && age <= 49) ? 6 : (age >= 50 && age <= 59) ? 4 : (age >= 60 && age <= 69) ? 2 : 1;
+            else totalCholPoints = (age >= 20 && age <= 39) ? 11 : (age >= 40 && age <= 49) ? 8 : (age >= 50 && age <= 59) ? 5 : (age >= 60 && age <= 69) ? 3 : 1;
+        } else if (gender === "female") {
+            if (totalChol < 4.1) totalCholPoints = 0;
+            else if (totalChol < 5.2) totalCholPoints = (age >= 20 && age <= 39) ? 4 : (age >= 40 && age <= 49) ? 3 : (age >= 50 && age <= 59) ? 2 : (age >= 60 && age <= 69) ? 1 : 1;
+            else if (totalChol < 6.2) totalCholPoints = (age >= 20 && age <= 39) ? 8 : (age >= 40 && age <= 49) ? 6 : (age >= 50 && age <= 59) ? 4 : (age >= 60 && age <= 69) ? 2 : 1;
+            else if (totalChol < 7.3) totalCholPoints = (age >= 20 && age <= 39) ? 11 : (age >= 40 && age <= 49) ? 8 : (age >= 50 && age <= 59) ? 5 : (age >= 60 && age <= 69) ? 3 : 1;
+            else totalCholPoints = (age >= 20 && age <= 39) ? 13 : (age >= 40 && age <= 49) ? 10 : (age >= 50 && age <= 59) ? 7 : (age >= 60 && age <= 69) ? 4 : 2;
+        }
+        points += totalCholPoints;
+        pointsTable += `<tr><td>Total Cholesterol</td><td>${totalCholPoints}</td></tr>`;
+
+        // HDL Cholesterol Points
+        let hdlPoints = 0;
+        if (hdlChol >= 1.6) hdlPoints = -1;
+        else if (hdlChol >= 1.3 && hdlChol < 1.6) hdlPoints = 0;
+        else if (hdlChol >= 1.0 && hdlChol < 1.3) hdlPoints = 1;
+        else hdlPoints = 2;
+        points += hdlPoints;
+        pointsTable += `<tr><td>HDL Cholesterol</td><td>${hdlPoints}</td></tr>`;
+
+        // Smoking Status Points
+        let smokingPoints = 0;
+        if (smoking === "smoker") {
+            if (gender === "male") {
+                if (age >= 20 && age <= 39) smokingPoints = 8;
+                else if (age >= 40 && age <= 49) smokingPoints = 5;
+                else if (age >= 50 && age <= 59) smokingPoints = 3;
+                else if (age >= 60 && age <= 69) smokingPoints = 1;
+                else smokingPoints = 1;
+            } else if (gender === "female") {
+                if (age >= 20 && age <= 39) smokingPoints = 9;
+                else if (age >= 40 && age <= 49) smokingPoints = 7;
+                else if (age >= 50 && age <= 59) smokingPoints = 4;
+                else if (age >= 60 && age <= 69) smokingPoints = 2;
+                else smokingPoints = 1;
+            }
+        }
+        points += smokingPoints;
+        pointsTable += `<tr><td>Smoking Status</td><td>${smokingPoints}</td></tr>`;
+
+        // Systolic Blood Pressure Points
+        let bpPoints = 0;
+        if (gender === "male") {
+            if (treatmentBP === "treated") {
+                if (systolicBP < 120) bpPoints = 0;
+                else if (systolicBP < 130) bpPoints = 1;
+                else if (systolicBP < 140) bpPoints = 2;
+                else if (systolicBP < 160) bpPoints = 2;
+                else bpPoints = 3;
+            } else {
+                if (systolicBP < 120) bpPoints = 0;
+                else if (systolicBP < 130) bpPoints = 0;
+                else if (systolicBP < 140) bpPoints = 1;
+                else if (systolicBP < 160) bpPoints = 1;
+                else bpPoints = 2;
+            }
+        } else if (gender === "female") {
+            if (treatmentBP === "treated") {
+                if (systolicBP < 120) bpPoints = 0;
+                else if (systolicBP < 130) bpPoints = 3;
+                else if (systolicBP < 140) bpPoints = 4;
+                else if (systolicBP < 160) bpPoints = 5;
+                else bpPoints = 6;
+            } else {
+                if (systolicBP < 120) bpPoints = 0;
+                else if (systolicBP < 130) bpPoints = 1;
+                else if (systolicBP < 140) bpPoints = 2;
+                else if (systolicBP < 160) bpPoints = 3;
+                else bpPoints = 4;
+            }
+        }
+        points += bpPoints;
+        pointsTable += `<tr><td>Systolic Blood Pressure</td><td>${bpPoints}</td></tr>`;
+
+        // Display Points Table
+        document.getElementById("points-table-body").innerHTML = pointsTable;
+        document.querySelector(".points-table").style.display = "table";
+
+// Calculate and Display Risk
+let risk = 0;
+
+if (gender === 'male') {
+    if (points <= 0) {
+        risk = "< 1";
+    } else if (points === 1) {
+        risk = (ethnicity === 'chinese' || ethnicity === 'malay') ? "< 1" : 1;
+    } else if (points >= 2 && points <= 4) {
+        risk = (ethnicity === 'chinese') ? "< 1" : 1;
+    } else if (points === 5 || points === 6) {
+        risk = (ethnicity === 'chinese') ? 1 : (ethnicity === 'malay') ? 2 : 2;
+    } else if (points === 7) {
+        risk = (ethnicity === 'chinese') ? 1 : (ethnicity === 'malay') ? 2 : 3;
+    } else if (points === 8) {
+        risk = (ethnicity === 'chinese') ? 2 : (ethnicity === 'malay') ? 3 : 4;
+    } else if (points === 9) {
+        risk = (ethnicity === 'chinese') ? 2 : (ethnicity === 'malay') ? 3 : 5;
+    } else if (points === 10) {
+        risk = (ethnicity === 'chinese') ? 3 : (ethnicity === 'malay') ? 4 : 6;
+    } else if (points === 11) {
+        risk = (ethnicity === 'chinese') ? 3 : (ethnicity === 'malay') ? 5 : 7;
+    } else if (points === 12) {
+        risk = (ethnicity === 'chinese') ? 4 : (ethnicity === 'malay') ? 7 : 10;
+    } else if (points === 13) {
+        risk = (ethnicity === 'chinese') ? 5 : (ethnicity === 'malay') ? 9 : 12;
+    } else if (points === 14) {
+        risk = (ethnicity === 'chinese') ? 7 : (ethnicity === 'malay') ? 11 : 15;
+    } else if (points === 15) {
+        risk = (ethnicity === 'chinese') ? 9 : (ethnicity === 'malay') ? 14 : 19;
+    } else if (points === 16) {
+        risk = (ethnicity === 'chinese') ? 11 : (ethnicity === 'malay') ? 18 : 24;
+    } else if (points === 17) {
+        risk = (ethnicity === 'chinese') ? 14 : (ethnicity === 'malay') ? 22 : 30;
+    } else if (points === 18) {
+        risk = (ethnicity === 'chinese') ? 18 : (ethnicity === 'malay') ? 28 : 37;
+    } else if (points === 19) {
+        risk = (ethnicity === 'chinese') ? 23 : (ethnicity === 'malay') ? 34 : 45;
+    } else if (points === 20) {
+        risk = (ethnicity === 'chinese') ? 28 : (ethnicity === 'malay') ? 42 : 54;
+    }
+} else if (gender === 'female') {
+    if (points <= 8) {
+        risk = "< 1";
+    } else if (points === 9) {
+        risk = (ethnicity === 'chinese' || ethnicity === 'malay') ? "< 1" : 1;
+    } else if (points >= 10 && points <= 12) {
+        risk = (ethnicity === 'chinese') ? "< 1" : 1;
+    } else if (points === 13 || points === 14) {
+        risk = 1;
+    } else if (points === 15 || points === 16) {
+        risk = (ethnicity === 'chinese') ? 1 : (ethnicity === 'malay') ? 2 : 3;
+    } else if (points === 17) {
+        risk = (ethnicity === 'chinese') ? 2 : (ethnicity === 'malay') ? 3 : 4;
+    } else if (points === 18) {
+        risk = (ethnicity === 'chinese') ? 2 : (ethnicity === 'malay') ? 4 : 6;
+    } else if (points === 19) {
+        risk = (ethnicity === 'chinese') ? 3 : (ethnicity === 'malay') ? 5 : 7;
+    } else if (points === 20) {
+        risk = (ethnicity === 'chinese') ? 4 : (ethnicity === 'malay') ? 7 : 10;
+    } else if (points === 21) {
+        risk = (ethnicity === 'chinese') ? 5 : (ethnicity === 'malay') ? 9 : 12;
+    } else if (points === 22) {
+        risk = (ethnicity === 'chinese') ? 7 : (ethnicity === 'malay') ? 11 : 16;
+    } else if (points === 23) {
+        risk = (ethnicity === 'chinese') ? 8 : (ethnicity === 'malay') ? 14 : 20;
+    } else if (points === 24) {
+        risk = (ethnicity === 'chinese') ? 11 : (ethnicity === 'malay') ? 18 : 25;
+    } else if (points === 25) {
+        risk = (ethnicity === 'chinese') ? 14 : (ethnicity === 'malay') ? 23 : 31;
+    } else if (points === 26) {
+        risk = (ethnicity === 'chinese') ? 18 : (ethnicity === 'malay') ? 29 : 39;
+    } else if (points === 27) {
+        risk = (ethnicity === 'chinese') ? 22 : (ethnicity === 'malay') ? 36 : 47;
+    }
+}
+
+
+
+        document.querySelector(".result").innerHTML = `<h3>10-Year Risk: ${risk}%</h3>`;
+    }
+</script>
+
+</body>
+</html>
